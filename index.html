@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>Naga Persada Music</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Naga Persada">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- RESET & BASIC SETUP --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #050505;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- BACKGROUND PREMIUM --- */
+        .bg-fixed {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('1000185027.jpg') no-repeat center center;
+            background-size: cover;
+            z-index: -2;
+        }
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, #000000 10%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.4) 100%);
+            backdrop-filter: blur(8px); /* Blur lebih kuat agar fokus ke player */
+            z-index: -1;
+        }
+
+        /* --- INTRO SCREEN --- */
+        #page-intro {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        
+        .intro-btn {
+            margin-top: 40px;
+            padding: 18px 60px;
+            background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728);
+            border: none; border-radius: 50px;
+            color: #222; font-weight: 700; font-size: 1rem; letter-spacing: 1px;
+            cursor: pointer; 
+            box-shadow: 0 0 30px rgba(191, 149, 63, 0.4);
+            transform: scale(1); transition: transform 0.2s;
+            animation: pulse-gold 2s infinite;
+        }
+        .intro-btn:active { transform: scale(0.95); }
+
+        /* --- PLAYER SCREEN --- */
+        #page-player {
+            display: none; width: 100%; height: 100%;
+            flex-direction: column; justify-content: space-between;
+            padding-top: 20px;
+            opacity: 0; transition: opacity 1s;
+        }
+
+        /* Top Area */
+        .top-area {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; padding: 0 30px;
+        }
+
+        .cover-wrapper {
+            width: 260px; height: 260px; margin-bottom: 30px; position: relative;
+        }
+        .cover-img {
+            width: 100%; height: 100%; border-radius: 25px; object-fit: cover;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .song-info { text-align: center; margin-bottom: 10px; }
+        .song-title {
+            font-size: 1.6rem; font-weight: 700;
+            background: linear-gradient(to bottom, #fff, #ddd);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px; text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .song-artist { font-size: 0.95rem; color: #BF953F; font-weight: 500; letter-spacing: 1px; }
+
+        /* Controls */
+        .controls-wrapper { width: 100%; padding: 0 30px; margin-bottom: 20px; }
+
+        .prog-cont { width: 100%; margin-bottom: 25px; display: flex; align-items: center; }
+        .prog-bg {
+            flex: 1; height: 5px; background: rgba(255,255,255,0.15);
+            border-radius: 10px; position: relative;
+        }
+        .prog-fill {
+            height: 100%; background: #BF953F; border-radius: 10px; width: 0%;
+            position: relative; box-shadow: 0 0 15px #BF953F;
+        }
+        .prog-fill::after {
+            content: ''; position: absolute; right: -6px; top: -3.5px;
+            width: 12px; height: 12px; background: white; border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .seek-input { position: absolute; top: -10px; left: 0; width: 100%; height: 25px; opacity: 0; cursor: pointer; }
+
+        .buttons-row { display: flex; align-items: center; justify-content: center; gap: 40px; }
+        .btn-act { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; opacity: 0.8; }
+        .btn-act:active { transform: scale(0.9); opacity: 1; }
+        
+        .btn-play-circle {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #BF953F, #FBF5B7);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #333; font-size: 2.2rem;
+            box-shadow: 0 10px 30px rgba(191, 149, 63, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-play-circle:active { transform: scale(0.9); }
+
+        /* Playlist */
+        .playlist-sheet {
+            height: 35%; background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top-left-radius: 30px; border-top-right-radius: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px; overflow-y: auto;
+        }
+        
+        .playlist-title { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-left: 10px; }
+
+        .track { display: flex; align-items: center; padding: 15px; border-radius: 15px; margin-bottom: 5px; transition: background 0.2s; cursor: pointer; }
+        .track:active { background: rgba(255,255,255,0.05); }
+        .track.active { background: linear-gradient(90deg, rgba(191, 149, 63, 0.2), transparent); border-left: 3px solid #BF953F; }
+        
+        .track-num { width: 35px; color: #666; font-size: 0.9rem; font-weight: 600; }
+        .track.active .track-num { color: #BF953F; }
+        .t-title { font-size: 1rem; color: #eee; flex: 1; font-weight: 400; }
+        .track.active .t-title { color: #BF953F; font-weight: 600; }
+        .playing-icon { font-size: 0.8rem; color: #BF953F; display: none; }
+        .track.active .playing-icon { display: block; animation: beat 1s infinite; }
+
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(191, 149, 63, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(191, 149, 63, 0); } 100% { box-shadow: 0 0 0 0 rgba(191, 149, 63, 0); } }
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+        @media (orientation: landscape) {
+            #page-player { flex-direction: row; padding-top: 0; }
+            .top-area { width: 50%; padding: 10px; }
+            .cover-wrapper { width: 130px; height: 130px; margin-bottom: 10px; }
+            .song-title { font-size: 1.2rem; }
+            .playlist-sheet { width: 50%; height: 100%; border-radius: 0; border-left: 1px solid rgba(255,255,255,0.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-fixed"></div>
+    <div class="bg-overlay"></div>
+    <audio id="audio-core" preload="auto"></audio>
+
+    <div id="page-intro">
+        <img src="logo.png" style="width:160px; margin-bottom:20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">
+        <h2 style="color:#BF953F; font-weight:300; letter-spacing:2px; font-size:1.2rem;">TIM DV NAGA PERSADA</h2>
+        <h1 style="color:white; font-size:2rem; font-weight:700; margin-bottom:5px;">MUSIC PLAYER</h1>
+        <button class="intro-btn" onclick="startApp()">PUTAR & FULLSCREEN <i class="fas fa-expand" style="margin-left:10px"></i></button>
+    </div>
+
+    <div id="page-player">
+        <div class="top-area">
+            <div class="cover-wrapper">
+                <img src="1000185022.jpg" class="cover-img">
+            </div>
+            <div class="song-info">
+                <div class="song-title" id="txt-title">Loading...</div>
+                <div class="song-artist">DV Naga Persada Collection</div>
+            </div>
+        </div>
+
+        <div class="controls-wrapper">
+            <div class="prog-cont">
+                <div class="prog-bg">
+                    <div class="prog-fill" id="fill-bar"></div>
+                    <input type="range" class="seek-input" id="seeker" min="0" max="100" value="0" oninput="seekAudio()">
+                </div>
+            </div>
+            <div class="buttons-row">
+                <button class="btn-act" onclick="changeSong(-1)"><i class="fas fa-backward-step"></i></button>
+                <button class="btn-play-circle" onclick="playPause()">
+                    <i class="fas fa-play" id="icon-play" style="margin-left:4px;"></i>
+                </button>
+                <button class="btn-act" onclick="changeSong(1)"><i class="fas fa-forward-step"></i></button>
+            </div>
+        </div>
+
+        <div class="playlist-sheet">
+            <div class="playlist-title">Daftar Lagu</div>
+            <div id="list-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // PWA SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.log('SW Failed', err));
+            });
+        }
+
+        // FULLSCREEN LOGIC
+        function openFullscreen() {
+            var elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } /* Safari */
+            else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); } /* IE11 */
+        }
+
+        // AUDIO LOGIC
+        const songTitles = [
+            "Bukti Nyata", "Dari Ragu menjadi Maju", "Zero to Hero",
+            "Dibawah Satu Komando", "Tim DV NP (Remix)", "Sang Leader",
+            "DvNP joss (Remix)", "Keluarga Besar", "Kemenangan",
+            "Pejuang Prestasi", "Maju Serentak", "Menang Asyik",
+            "Peringkat", "Pesta Kemenangan", "Pintu Bahagia",
+            "Satu Hati Satu Misi", "V.i.P"
+        ];
+
+        let currentIndex = 0;
+        const audio = document.getElementById('audio-core');
+        const playIcon = document.getElementById('icon-play');
+        const fillBar = document.getElementById('fill-bar');
+        const seeker = document.getElementById('seeker');
+
+        function startApp() {
+            openFullscreen(); // Aktifkan Fullscreen
+            document.getElementById('page-intro').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('page-intro').style.display = 'none';
+                document.getElementById('page-player').style.display = 'flex';
+                setTimeout(() => document.getElementById('page-player').style.opacity = '1', 50);
+            }, 800);
+            loadAndPlay(0);
+        }
+
+        function loadAndPlay(index) {
+            if (index < 0) index = songTitles.length - 1;
+            if (index >= songTitles.length) index = 0;
+            currentIndex = index;
+            document.getElementById('txt-title').innerText = songTitles[currentIndex];
+            audio.src = `./mp3/${currentIndex + 1}.mp3`;
+            audio.play().then(() => {
+                playIcon.className = "fas fa-pause";
+                renderPlaylist();
+            }).catch(e => console.log("User interaction needed first"));
+            renderPlaylist();
+        }
+
+        function playPause() {
+            if (audio.paused) {
+                audio.play();
+                playIcon.className = "fas fa-pause";
+            } else {
+                audio.pause();
+                playIcon.className = "fas fa-play";
+            }
+        }
+
+        function changeSong(dir) { loadAndPlay(currentIndex + dir); }
+
+        function renderPlaylist() {
+            const box = document.getElementById('list-box');
+            box.innerHTML = "";
+            songTitles.forEach((title, i) => {
+                let div = document.createElement('div');
+                div.className = `track ${i === currentIndex ? 'active' : ''}`;
+                div.onclick = () => loadAndPlay(i);
+                div.innerHTML = `<div class="track-num">${i+1}</div><div class="t-title">${title}</div><i class="fas fa-volume-high playing-icon"></i>`;
+                box.appendChild(div);
+            });
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if(audio.duration) {
+                let pct = (audio.currentTime / audio.duration) * 100;
+                fillBar.style.width = pct + "%";
+                seeker.value = pct;
+            }
+        });
+
+        function seekAudio() { audio.currentTime = (seeker.value / 100) * audio.duration; }
+        audio.addEventListener('ended', () => changeSong(1));
+    </script>
+</body>
+</html>
